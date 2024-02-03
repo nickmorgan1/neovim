@@ -1,0 +1,5 @@
+.DS_Store
+yarn/*
+github-copilot/*
+gh/*
+iterm2/*

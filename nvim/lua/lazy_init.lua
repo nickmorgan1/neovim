@@ -15,12 +15,11 @@ require('lazy').setup({
   spec = 'plugins',
   change_detection = { notify = false },
   performance = {
-    cache = { enabled = true },
     rtp = {
       disabled_plugins = {
         'gzip',
         'matchit',
-        'netrwPlugin',
+        -- 'netrwPlugin',
         'matchparen',
         'rplugin',
         'tarPlugin',

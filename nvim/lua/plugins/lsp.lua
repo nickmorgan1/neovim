@@ -30,6 +30,7 @@ return {
                 "rust_analyzer",
                 "tsserver",
                 "gopls",
+                "yamlls",
             },
             handlers = {
                 function(server_name) -- default handler (optional)
@@ -58,7 +59,17 @@ return {
                     settings = {
                     }
                   }
-                end
+                end,
+                ["yamlls"] = function ()
+                  local lspconfig = require("lspconfig")
+                  lspconfig.yamlls.setup {
+                    yaml = {
+                      schemaStore = {
+                        enable = true
+                      }
+                    }
+                  }
+              end,
             }
         })
         vim.api.nvim_create_autocmd("BufWritePre", {

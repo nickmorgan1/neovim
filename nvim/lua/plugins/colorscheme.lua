@@ -2,8 +2,8 @@ return {
   {
    "sainnhe/gruvbox-material",
    lazy = false,
-    enabled = true,
-    priority = 1000,
+   enabled = true,
+   priority = 1000,
 },
 {
     "folke/tokyonight.nvim",
@@ -24,19 +24,7 @@ return {
                 floats = "dark", -- style for floating windows
             },
         })
-    end
-},
-
-{
-    "rose-pine/neovim",
-    name = "rose-pine",
-    config = function()
-        require('rose-pine').setup({
-            disable_background = true,
-        })
-
-        vim.cmd("colorscheme rose-pine")
-
+        vim.cmd("colorscheme gruvbox-material")
     end
 },
 }

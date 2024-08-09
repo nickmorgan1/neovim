@@ -32,7 +32,8 @@ return {
                 "tsserver",
                 "gopls",
                 "yamlls",
-                "csharp_ls",
+                "solargraph",
+                "omnisharp",
             },
             handlers = {
                 function(server_name) -- default handler (optional)
@@ -97,7 +98,38 @@ return {
                       },
                     },
                   }
-                end
+                end,
+                ["solargraph"] = function ()
+                  local lspconfig = require("lspconfig")
+                  lspconfig.solargraph.setup {
+                    capabilities = capabilities,
+                    cmd = { os.getenv("HOME") .. "/.rbenv/shims/solargraph", "stdio" },
+                    root_dir = lspconfig.util.root_pattern("Gemfile", ".git", "."),
+                    settings = {
+                      solargraph = {
+                        diagnostics = true,
+                        formatting = true,
+                        autoformat = true,
+                        completion = true,
+                        references = true,
+                        folding = true,
+                        rename = true,
+                        symbols = true
+                      },
+                    },
+                  }
+                end,
+                ["omnisharp"] = function ()
+                  local lspconfig = require("lspconfig")
+                  lspconfig.omnisharp.setup {
+                    capabilities = capabilities,
+                    enable_roslyn_analysers = true,
+                    enable_import_completion = true,
+                    organize_imports_on_format = true,
+                    enable_decompilation_support = true,
+                    filetypes = { 'cs', 'vb', 'csproj', 'sln', 'slnx', 'props', 'csx', 'targets' }
+                  }
+                end,
             }
         })
         vim.api.nvim_create_autocmd("BufWritePre", {

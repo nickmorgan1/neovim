@@ -5,6 +5,7 @@ return {
    enabled = true,
    priority = 1000,
 },
+{ "catppuccin/nvim", name = "catppuccin", priority = 1000 },
 {
     "folke/tokyonight.nvim",
     config = function()
@@ -24,7 +25,7 @@ return {
                 floats = "dark", -- style for floating windows
             },
         })
-        vim.cmd("colorscheme gruvbox-material")
+        vim.cmd("colorscheme catppuccin-frappe")
     end
 },
 }

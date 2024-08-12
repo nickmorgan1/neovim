@@ -12,6 +12,7 @@ return {
         "saadparwaiz1/cmp_luasnip",
         "j-hui/fidget.nvim",
         "b0o/schemastore.nvim",
+        "Hoffs/omnisharp-extended-lsp.nvim",
     },
 
     config = function()
@@ -123,6 +124,20 @@ return {
                   local lspconfig = require("lspconfig")
                   lspconfig.omnisharp.setup {
                     capabilities = capabilities,
+                    handlers = {
+                      ["textDocument/definition"] = function(...)
+                        return require("omnisharp_extended").handler(...)
+                      end,
+                    },
+                    keys = {
+                      {
+                        "gd",
+                        function()
+                          require("omnisharp_extended").telescope_lsp_definitions()
+                        end,
+                        desc = "Goto Definition",
+                      },
+                    },
                     enable_roslyn_analysers = true,
                     enable_import_completion = true,
                     organize_imports_on_format = true,

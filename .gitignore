@@ -1,6 +1,7 @@
 .DS_Store
 yarn/*
 github-copilot/*
+gh-copilot/*
 gh/*
 iterm2/*
 configstore/*

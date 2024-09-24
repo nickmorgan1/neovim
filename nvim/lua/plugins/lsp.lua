@@ -30,10 +30,10 @@ return {
             ensure_installed = {
                 "lua_ls",
                 "rust_analyzer",
-                "tsserver",
+                "ts_ls",
                 "gopls",
                 "yamlls",
-                "solargraph",
+                "ruby_lsp@0.18.1",
                 "omnisharp",
             },
             handlers = {
@@ -100,24 +100,11 @@ return {
                     },
                   }
                 end,
-                ["solargraph"] = function ()
+                ["ruby_lsp"] = function ()
                   local lspconfig = require("lspconfig")
-                  lspconfig.solargraph.setup {
+                  lspconfig.ruby_lsp.setup {
                     capabilities = capabilities,
-                    cmd = { os.getenv("HOME") .. "/.rbenv/shims/solargraph", "stdio" },
-                    root_dir = lspconfig.util.root_pattern("Gemfile", ".git", "."),
-                    settings = {
-                      solargraph = {
-                        diagnostics = true,
-                        formatting = true,
-                        autoformat = true,
-                        completion = true,
-                        references = true,
-                        folding = true,
-                        rename = true,
-                        symbols = true
-                      },
-                    },
+                    cmd = { os.getenv("HOME") .. "/.rbenv/shims/ruby-lsp" },
                   }
                 end,
                 ["omnisharp"] = function ()

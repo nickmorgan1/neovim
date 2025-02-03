@@ -30,11 +30,11 @@ return {
             ensure_installed = {
                 "lua_ls",
                 "rust_analyzer",
-                "ts_ls",
+                "tsserver",
                 "gopls",
                 "yamlls",
-                "ruby_lsp@0.18.1",
                 "omnisharp",
+                "clangd",
             },
             handlers = {
                 function(server_name) -- default handler (optional)
@@ -100,13 +100,6 @@ return {
                     },
                   }
                 end,
-                ["ruby_lsp"] = function ()
-                  local lspconfig = require("lspconfig")
-                  lspconfig.ruby_lsp.setup {
-                    capabilities = capabilities,
-                    cmd = { os.getenv("HOME") .. "/.rbenv/shims/ruby-lsp" },
-                  }
-                end,
                 ["omnisharp"] = function ()
                   local lspconfig = require("lspconfig")
                   lspconfig.omnisharp.setup {
@@ -130,6 +123,18 @@ return {
                     organize_imports_on_format = true,
                     enable_decompilation_support = true,
                     filetypes = { 'cs', 'vb', 'csproj', 'sln', 'slnx', 'props', 'csx', 'targets' }
+                  }
+                end,
+                ["clangd"] = function ()
+                  local lspconfig = require("lspconfig")
+                  lspconfig.clangd.setup {
+                    capabilities = capabilities,
+                  }
+                end,
+                ["tsserver"] = function ()
+                  local lspconfig = require("lspconfig")
+                  lspconfig.tsserver.setup {
+                    capabilities = capabilities,
                   }
                 end,
             }

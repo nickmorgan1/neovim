@@ -29,3 +29,5 @@ autocmd('LspAttach', {
         vim.keymap.set("n", "]d", function() vim.diagnostic.goto_prev() end, opts)
     end
 })
+vim.o.background = "dark"
+vim.cmd([[colorscheme gruvbox]])

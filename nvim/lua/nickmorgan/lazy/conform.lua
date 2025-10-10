@@ -6,6 +6,7 @@ return {
 			formatters_by_ft = {
 				c = { "clang-format" },
 				cpp = { "clang-format" },
+                cs = { "csharpier" },
 				lua = { "stylua" },
 				go = { "gofmt" },
 				javascript = { "prettier" },

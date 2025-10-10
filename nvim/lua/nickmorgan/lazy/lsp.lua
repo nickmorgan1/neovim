@@ -12,7 +12,6 @@ local root_files = {
 return {
   "neovim/nvim-lspconfig",
   dependencies = {
-    "stevearc/conform.nvim",
     "williamboman/mason.nvim",
     "williamboman/mason-lspconfig.nvim",
     "hrsh7th/cmp-nvim-lsp",
@@ -23,25 +22,29 @@ return {
     "L3MON4D3/LuaSnip",
     "saadparwaiz1/cmp_luasnip",
     "j-hui/fidget.nvim",
+    "mfussenegger/nvim-jdtls",
   },
 
   config = function()
-    require("conform").setup({
-      formatters_by_ft = {},
-    })
     local cmp = require("cmp")
     local cmp_lsp = require("cmp_nvim_lsp")
     local capabilities =
       vim.tbl_deep_extend("force", {}, vim.lsp.protocol.make_client_capabilities(), cmp_lsp.default_capabilities())
 
     require("fidget").setup({})
-    require("mason").setup()
+    require("mason").setup({
+      registries = {
+        "github:mason-org/mason-registry",
+        "github:Crashdummyy/mason-registry",
+      },
+    })
     require("mason-lspconfig").setup({
       ensure_installed = {
         "lua_ls",
         "rust_analyzer",
         "gopls",
         "tailwindcss",
+        "jdtls",
       },
       handlers = {
         function(server_name) -- default handler (optional)
@@ -113,6 +116,9 @@ return {
               },
             },
           })
+        end,
+        ["jdtls"] = function()
+          -- JDTLS handled in ftplugin/java.lua
         end,
       },
     })

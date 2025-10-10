@@ -30,5 +30,6 @@ return {
     end, { desc = "grep" })
     vim.keymap.set("n", "<leader>pg", telescope.extensions.live_grep_args.live_grep_args, { desc = "grep with args" })
     vim.keymap.set("n", "<leader>vh", builtin.help_tags, { desc = "help tags" })
+    vim.keymap.set("n", "<leader>pb", builtin.buffers, { desc = "find open buffers" } )
   end,
 }

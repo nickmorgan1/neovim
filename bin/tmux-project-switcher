@@ -1,0 +1,118 @@
+#!/usr/bin/env -S bash --norc --noprofile
+
+STATE_FILE="/tmp/tmux-popup-state"
+LAST_PROJECT_FILE="/tmp/tmux-last-project"
+
+# Get current session BEFORE opening fzf
+current_session=$(tmux display-message -p '#S')
+
+# Check if we're in a popup and get parent client info upfront
+is_popup=false
+popup_type=""
+parent_tty=""
+parent_session=""
+if [[ $current_session == *-agent ]]; then
+    is_popup=true
+    popup_type="agent"
+    parent_session="${current_session%-agent}"
+    parent_tty=$(tmux list-clients -F '#{client_tty} #{session_name}' | grep " ${parent_session}$" | awk '{print $1}')
+elif [[ $current_session == *-term ]]; then
+    is_popup=true
+    popup_type="term"
+    parent_session="${current_session%-term}"
+    parent_tty=$(tmux list-clients -F '#{client_tty} #{session_name}' | grep " ${parent_session}$" | awk '{print $1}')
+fi
+
+# Determine the "from" project (for saving as last project later)
+if [[ $is_popup == true ]]; then
+    from_project="$parent_session"
+else
+    from_project="$current_session"
+fi
+
+# Get last project for sorting
+last_project=$(cat "$LAST_PROJECT_FILE" 2>/dev/null)
+
+# Get list of main project sessions, with last project at top
+sessions=$(tmux ls -F '#S' 2>/dev/null | grep -v -E '\-agent$|\-term$')
+if [[ -n "$last_project" ]] && echo "$sessions" | grep -q "^${last_project}$"; then
+    # Put last project first, then the rest (excluding last project)
+    sessions=$(echo "$last_project"; echo "$sessions" | grep -v "^${last_project}$")
+fi
+
+selected=$(echo "$sessions" | fzf --reverse --header="Switch project")
+
+if [[ -z $selected ]]; then
+    exit 0
+fi
+
+# Save current project as "last project" for quick switching back
+echo "$from_project" > "$LAST_PROJECT_FILE"
+
+# Function to save popup state for a project
+save_popup_state() {
+    local project="$1"
+    local type="$2"
+    # Remove existing entry for this project, then add new one
+    grep -v "^${project}=" "$STATE_FILE" 2>/dev/null > "${STATE_FILE}.tmp" || true
+    echo "${project}=${type}" >> "${STATE_FILE}.tmp"
+    mv "${STATE_FILE}.tmp" "$STATE_FILE"
+}
+
+# Function to get saved popup state for a project
+get_popup_state() {
+    local project="$1"
+    grep "^${project}=" "$STATE_FILE" 2>/dev/null | cut -d= -f2
+}
+
+# Function to clear popup state for a project
+clear_popup_state() {
+    local project="$1"
+    grep -v "^${project}=" "$STATE_FILE" 2>/dev/null > "${STATE_FILE}.tmp" || true
+    mv "${STATE_FILE}.tmp" "$STATE_FILE"
+}
+
+# Function to open a popup for a session
+open_popup() {
+    local session="$1"
+    local type="$2"
+    if [[ $type == "agent" ]]; then
+        tmux display-popup -E -w 90% -h 90% \
+            "tmux has-session -t '${session}-agent' 2>/dev/null && tmux attach-session -t '${session}-agent' || tmux new-session -s '${session}-agent'"
+    elif [[ $type == "term" ]]; then
+        tmux display-popup -E -w 80% -h 80% \
+            "tmux has-session -t '${session}-term' 2>/dev/null && tmux attach-session -t '${session}-term' || tmux new-session -s '${session}-term'"
+    fi
+}
+
+if [[ $is_popup == true ]] && [[ -n $parent_tty ]]; then
+    # Save current project's popup state
+    save_popup_state "$parent_session" "$popup_type"
+
+    # Check if target project has saved popup state
+    target_popup=$(get_popup_state "$selected")
+
+    # Switch the parent client first
+    tmux switch-client -c "$parent_tty" -t "$selected"
+
+    # If target has saved popup state, schedule popup via tmux run-shell BEFORE detaching
+    if [[ -n $target_popup ]]; then
+        clear_popup_state "$selected"
+        # Use run-shell -b to run in background within tmux, targeting the parent tty
+        tmux run-shell -b "sleep 0.05; ~/.config/bin/tmux-open-popup '$selected' '$target_popup'"
+    fi
+
+    # Detach from the popup session (closes popup, keeps session alive)
+    tmux detach-client -s "$current_session"
+else
+    # Normal switch - check if target has saved popup state
+    target_popup=$(get_popup_state "$selected")
+
+    # If target has saved popup state, schedule popup via tmux run-shell
+    if [[ -n $target_popup ]]; then
+        clear_popup_state "$selected"
+        tmux run-shell -b "sleep 0.05; ~/.config/bin/tmux-open-popup '$selected' '$target_popup'"
+    fi
+
+    tmux switch-client -t "$selected"
+fi

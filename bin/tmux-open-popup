@@ -1,0 +1,15 @@
+#!/usr/bin/env -S bash --norc --noprofile
+
+# Helper script to open a popup for a session
+# Usage: tmux-open-popup <session> <type>
+
+session="$1"
+type="$2"
+
+if [[ $type == "agent" ]]; then
+    tmux display-popup -E -w 90% -h 90% \
+        "/bin/bash --norc --noprofile -c \"tmux has-session -t '${session}-agent' 2>/dev/null && tmux attach-session -t '${session}-agent' || tmux new-session -s '${session}-agent' $SHELL -lic aicode\""
+elif [[ $type == "term" ]]; then
+    tmux display-popup -E -w 80% -h 80% \
+        "/bin/bash --norc --noprofile -c \"tmux has-session -t '${session}-term' 2>/dev/null && tmux attach-session -t '${session}-term' || tmux new-session -s '${session}-term'\""
+fi

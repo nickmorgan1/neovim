@@ -9,6 +9,7 @@ return {
                 cs = { "csharpier" },
 				lua = { "stylua" },
 				go = { "gofmt" },
+				rust = { "rustfmt" },
 				javascript = { "prettier" },
 				typescript = { "prettier" },
 				elixir = { "mix" },

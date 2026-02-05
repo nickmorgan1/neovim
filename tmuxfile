@@ -1,0 +1,67 @@
+set-option default-terminal "tmux-256color"
+unbind C-b
+set-option -g prefix C-a
+bind-key C-a send-prefix
+
+set-window-option -g automatic-rename on
+set-option -g set-titles on
+
+set -g status-keys vi
+set -g history-limit 10000
+set -s extended-keys on
+set -as terminal-features 'xterm-256color:extkeys'
+
+setw -g mode-keys vi
+
+# Splits
+bind-key v split-window -h -c "#{pane_current_path}"
+bind-key s split-window -v -c "#{pane_current_path}"
+
+# Resize panes
+bind-key J resize-pane -D 5
+bind-key K resize-pane -U 5
+bind-key H resize-pane -L 5
+bind-key L resize-pane -R 5
+
+bind-key M-j resize-pane -D
+bind-key M-k resize-pane -U
+bind-key M-h resize-pane -L
+bind-key M-l resize-pane -R
+
+# Vim style pane selection (with prefix)
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+
+# Smart pane/nvim navigation (no prefix)
+# Works with vim-tmux-navigator in nvim
+is_vim="ps -o state= -o comm= -t '#{pane_tty}' | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|l?n?vim?x?|fzf)(diff)?$'"
+bind-key -n 'C-h' if-shell "$is_vim" 'send-keys C-h' 'select-pane -L'
+bind-key -n 'C-j' if-shell "$is_vim" 'send-keys C-j' 'select-pane -D'
+bind-key -n 'C-k' if-shell "$is_vim" 'send-keys C-k' 'select-pane -U'
+bind-key -n 'C-l' if-shell "$is_vim" 'send-keys C-l' 'select-pane -R'
+
+# Session/project management
+unbind w
+bind w display-popup -E "~/.config/bin/tmux-project-switcher"
+bind-key p display-popup -E "~/.config/bin/tmux-sessionizer"
+bind-key P command-prompt -p "open dir:" "run-shell '~/.config/bin/tmux-sessionizer %%'"
+bind-key X display-popup -E "tmux ls -F '#S' | fzf --reverse -m --header='Kill sessions (Tab=multi)' | xargs -I{} tmux kill-session -t {}"
+
+# Popup terminals
+bind-key t run-shell "~/.config/bin/tmux-popup-toggle term"
+bind-key a run-shell "~/.config/bin/tmux-popup-toggle agent"
+
+# Zoom
+bind-key z resize-pane -Z
+
+# Reload tmux config
+bind r source-file ~/.tmux.conf \; display-message "Config reloaded"
+
+# Copy mode (vim-style)
+bind-key -T copy-mode-vi v send-keys -X begin-selection
+bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "pbcopy"
+
+# Status bar
+set -g status-style fg=white,bg=black

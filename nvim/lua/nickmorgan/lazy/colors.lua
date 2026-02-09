@@ -20,7 +20,7 @@ return {
       require("monokai-pro").setup({
         filter = "spectrum", -- classic | octagon | pro | machine | ristretto | spectrum
       })
-      vim.cmd.colorscheme("monokai-vibrant")
+      vim.cmd.colorscheme("monokai-pro")
     end,
   },
 }

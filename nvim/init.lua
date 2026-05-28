@@ -1,1 +1,1 @@
-require("nickmorgan")
+require('nickmorgan.options')

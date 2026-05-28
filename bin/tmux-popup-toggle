@@ -5,6 +5,7 @@
 
 target_type="$1"
 current_session=$(tmux display-message -p '#S')
+pane_path=$(tmux display-message -p '#{pane_current_path}')
 
 # Determine popup dimensions
 if [[ $target_type == "agent" ]]; then
@@ -38,7 +39,7 @@ if [[ -n $current_type ]]; then
     else
         # In a different popup, switch to the other one
         # Schedule the new popup to open after we detach
-        tmux run-shell -b "sleep 0.05; ~/.config/bin/tmux-open-popup '$parent_session' '$target_type'"
+        tmux run-shell -b "sleep 0.05; ~/.config/bin/tmux-open-popup '$parent_session' '$target_type' '$pane_path'"
         # Detach from current popup
         tmux detach-client -s "$current_session"
     fi
@@ -46,9 +47,9 @@ else
     # Not in a popup, open normally (use bash to avoid slow zsh startup)
     if [[ $target_type == "agent" ]]; then
         tmux display-popup -E -w "$width" -h "$height" \
-            "/bin/bash --norc --noprofile -c \"tmux has-session -t '$target_session' 2>/dev/null && tmux attach-session -t '$target_session' || tmux new-session -s '$target_session' $SHELL -lic aicode\""
+            "/bin/bash --norc --noprofile -c \"tmux has-session -t '$target_session' 2>/dev/null && tmux attach-session -t '$target_session' || tmux new-session -s '$target_session' -c '$pane_path' $SHELL -lic aicode\""
     else
         tmux display-popup -E -w "$width" -h "$height" \
-            "/bin/bash --norc --noprofile -c \"tmux has-session -t '$target_session' 2>/dev/null && tmux attach-session -t '$target_session' || tmux new-session -s '$target_session'\""
+            "/bin/bash --norc --noprofile -c \"tmux has-session -t '$target_session' 2>/dev/null && tmux attach-session -t '$target_session' || tmux new-session -s '$target_session' -c '$pane_path'\""
     fi
 fi

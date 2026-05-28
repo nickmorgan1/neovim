@@ -1,15 +1,16 @@
 #!/usr/bin/env -S bash --norc --noprofile
 
 # Helper script to open a popup for a session
-# Usage: tmux-open-popup <session> <type>
+# Usage: tmux-open-popup <session> <type> [path]
 
 session="$1"
 type="$2"
+pane_path="${3:-$HOME}"
 
 if [[ $type == "agent" ]]; then
     tmux display-popup -E -w 90% -h 90% \
-        "/bin/bash --norc --noprofile -c \"tmux has-session -t '${session}-agent' 2>/dev/null && tmux attach-session -t '${session}-agent' || tmux new-session -s '${session}-agent' $SHELL -lic aicode\""
+        "/bin/bash --norc --noprofile -c \"tmux has-session -t '${session}-agent' 2>/dev/null && tmux attach-session -t '${session}-agent' || tmux new-session -s '${session}-agent' -c '$pane_path' $SHELL -lic aicode\""
 elif [[ $type == "term" ]]; then
     tmux display-popup -E -w 80% -h 80% \
-        "/bin/bash --norc --noprofile -c \"tmux has-session -t '${session}-term' 2>/dev/null && tmux attach-session -t '${session}-term' || tmux new-session -s '${session}-term'\""
+        "/bin/bash --norc --noprofile -c \"tmux has-session -t '${session}-term' 2>/dev/null && tmux attach-session -t '${session}-term' || tmux new-session -s '${session}-term' -c '$pane_path'\""
 fi

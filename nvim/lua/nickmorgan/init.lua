@@ -1,0 +1,6 @@
+require('nickmorgan.options')
+require('nickmorgan.keymaps')
+require('nickmorgan.autocmds')
+require('nickmorgan.cmds')
+require('nickmorgan.plugins')
+require('nickmorgan.snippets')

@@ -1,4 +1,4 @@
-local picker = require('nickmorgan.plugins.picker');
+local picker = require('nickmorgan.plugins.picker')
 
 vim.pack.add({
   picker,

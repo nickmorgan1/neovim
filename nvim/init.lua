@@ -63,10 +63,13 @@ require('nvim-treesitter.config').setup({
 })
 
 vim.pack.add({
-    { src = 'https://github.com/shaunsingh/nord.nvim' },
+    {
+    src = 'https://github.com/rose-pine/neovim',
+    name = 'rose-pine',
+}
 })
 
-vim.cmd('colorscheme nord')
+vim.cmd('colorscheme rose-pine-moon')
 
 -- Colorizer shows html and other colour encodings in their colour
 vim.pack.add({

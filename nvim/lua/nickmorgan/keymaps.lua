@@ -11,3 +11,5 @@ map('n', '<C-l>', '<C-w>l', { desc = 'Go to right window' })
 -- MiniFiles
 map('n', '<leader>pv', ':Ex<CR>')
 
+map('n', '<C-d>', '<C-d>zz', { desc = 'Scroll down', noremap = true })
+map('n', '<C-u>', '<C-u>zz', { desc = 'Scroll up', noremap = true })

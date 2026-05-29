@@ -4,11 +4,11 @@ local lspGroup = vim.api.nvim_create_augroup("lsp_completion", { clear = true })
 vim.api.nvim_create_autocmd('FileType', {
     group = nickgroup,
     pattern = '*', -- apply to all filetypes
-  callback = function()
-    -- This fixes annoying auto comments on newline
-    vim.opt_local.formatoptions:remove({ 'r', 'o' })
-  end,
-  desc = 'Disable auto-commenting on new lines'
+    callback = function()
+        -- This fixes annoying auto comments on newline
+        vim.opt_local.formatoptions:remove({ 'r', 'o' })
+    end,
+    desc = 'Disable auto-commenting on new lines'
 })
 
 vim.api.nvim_create_autocmd('LspAttach', {
@@ -29,3 +29,34 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end
 })
 
+-- show cursor line only in active window
+local cursorline_augroup = vim.api.nvim_create_augroup("cursorline-active-window", { clear = true })
+vim.api.nvim_create_autocmd("WinEnter", {
+    group = cursorline_augroup,
+    callback = function()
+        local win = vim.api.nvim_get_current_win()
+        -- Schedule to preserve the correct order of events when synchronously
+        -- changing between windows a bunch of times (like in `<c-w>t`)
+        vim.schedule(function()
+            if not vim.api.nvim_win_is_valid(win) then return end
+            if not vim.w[win].cached_cursorline then return end
+
+            vim.wo[win].cursorline = vim.w[win].cached_cursorline
+            vim.w[win].cached_cursorline = nil
+        end)
+    end,
+})
+vim.api.nvim_create_autocmd("WinLeave", {
+    group = cursorline_augroup,
+    callback = function()
+        local win = vim.api.nvim_get_current_win()
+        -- Copying the current window options seems to be done after `WinLeave`
+        -- when opening a new tab. Delay setting `cursorline` to `false` until
+        -- after the options are copied
+        vim.schedule(function()
+            if not vim.api.nvim_win_is_valid(win) then return end
+            vim.w[win].cached_cursorline = vim.wo[win].cursorline
+            vim.wo[win].cursorline = false
+        end)
+    end,
+})

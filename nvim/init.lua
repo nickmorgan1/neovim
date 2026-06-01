@@ -16,6 +16,7 @@ local lsp_servers = {
     'lua_ls',
     'ts_ls',
     'gopls',
+    'jdtls',
 }
 
 require('mason').setup()

@@ -65,12 +65,13 @@ require('nvim-treesitter.config').setup({
 
 vim.pack.add({
     {
-    src = 'https://github.com/rose-pine/neovim',
-    name = 'rose-pine',
+    src = 'https://github.com/sainnhe/sonokai',
+    name = 'sonokai',
 }
 })
 
-vim.cmd('colorscheme rose-pine-moon')
+vim.cmd('colorscheme sonokai')
+vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
 
 -- Colorizer shows html and other colour encodings in their colour
 vim.pack.add({

@@ -9,12 +9,9 @@ vim.pack.add({
 })
 
 local lsp_servers = {
-    'pylsp',
     'clangd',
-    'zls',
     'rust_analyzer',
     'lua_ls',
-    'ts_ls',
     'gopls',
     'jdtls',
 }

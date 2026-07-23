@@ -10,6 +10,9 @@ set -g status-keys vi
 set -g history-limit 10000
 set -s extended-keys on
 set -as terminal-features 'xterm-256color:extkeys'
+# Truecolor passthrough (without this, tmux downsamples 24-bit colors
+# from nvim/Claude Code/Codex/status-bar to a 256-color approximation)
+set -as terminal-features ',*:RGB'
 
 setw -g mode-keys vi
 
@@ -47,7 +50,7 @@ unbind w
 bind w display-popup -E "~/.config/bin/tmux-project-switcher"
 bind-key p display-popup -E "~/.config/bin/tmux-sessionizer"
 bind-key P command-prompt -p "open dir:" "run-shell '~/.config/bin/tmux-sessionizer %%'"
-bind-key X display-popup -E "tmux ls -F '#S' | fzf --reverse -m --header='Kill sessions (Tab=multi)' | xargs -I{} tmux kill-session -t {}"
+bind-key X display-popup -E "tmux ls -F '#S' | fzf --reverse -m --header='Kill sessions (Tab=multi)' $(~/.config/bin/fzf-theme) | xargs -I{} tmux kill-session -t {}"
 
 # Popup terminals
 bind-key t run-shell "~/.config/bin/tmux-popup-toggle term"
@@ -56,6 +59,13 @@ bind-key a run-shell "~/.config/bin/tmux-popup-toggle agent"
 # Zoom
 bind-key z resize-pane -Z
 
+# Theme: T flips light/dark system-wide; S just re-syncs tmux/Neovim/Claude
+# Code/Codex to whatever the system is currently set to (no flip) - use this
+# if something else (a schedule, System Settings) already changed appearance
+# and your tools haven't caught up. Ghostty always tracks it live on its own.
+bind-key T run-shell "~/.config/bin/toggle-theme"
+bind-key S run-shell "~/.config/bin/sync-theme"
+
 # Reload tmux config
 bind r source-file ~/.tmux.conf \; display-message "Config reloaded"
 
@@ -63,5 +73,22 @@ bind r source-file ~/.tmux.conf \; display-message "Config reloaded"
 bind-key -T copy-mode-vi v send-keys -X begin-selection
 bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "pbcopy"
 
-# Status bar
-set -g status-style fg=white,bg=black
+# Theme colors below follow macOS light/dark mode (Catppuccin Latte / Frappe).
+# See prefix+T / prefix+S above to trigger a refresh.
+if-shell '[ "$(defaults read -g AppleInterfaceStyle 2>/dev/null)" = "Dark" ]' \
+    'set -g status-style fg=#c6d0f5,bg=#303446; \
+     set -g pane-border-style fg=#414559; \
+     set -g pane-active-border-style fg=#8caaee; \
+     set -g message-style fg=#c6d0f5,bg=#414559; \
+     set -g message-command-style fg=#c6d0f5,bg=#414559; \
+     set -g mode-style fg=#303446,bg=#babbf1; \
+     set -g popup-style fg=#c6d0f5,bg=#303446; \
+     set -g popup-border-style fg=#8caaee,bg=#303446' \
+    'set -g status-style fg=#4c4f69,bg=#eff1f5; \
+     set -g pane-border-style fg=#ccd0da; \
+     set -g pane-active-border-style fg=#1e66f5; \
+     set -g message-style fg=#4c4f69,bg=#ccd0da; \
+     set -g message-command-style fg=#4c4f69,bg=#ccd0da; \
+     set -g mode-style fg=#eff1f5,bg=#7287fd; \
+     set -g popup-style fg=#4c4f69,bg=#eff1f5; \
+     set -g popup-border-style fg=#1e66f5,bg=#eff1f5'

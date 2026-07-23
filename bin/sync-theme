@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Re-applies the CURRENT macOS light/dark appearance to tmux and nvim.
+# Does not change system appearance - use this when something (a schedule,
+# a manual System Settings change) already flipped it and your tools drifted.
+# Ghostty tracks appearance live on its own, so it needs no nudge here.
+
+tmux source-file ~/.tmux.conf 2>/dev/null
+
+pkill -SIGUSR1 -x nvim 2>/dev/null
+
+# Best-effort nudge for Claude Code / Codex TUIs to redraw. Unverified
+# whether this triggers a live re-theme in either tool; harmless if not.
+pkill -SIGWINCH -f 'claude-code/bin/claude.exe' 2>/dev/null
+pkill -SIGWINCH -f '/bin/codex$' 2>/dev/null
+
+exit 0

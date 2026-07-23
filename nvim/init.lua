@@ -60,15 +60,45 @@ require('nvim-treesitter.config').setup({
     install_dir = vim.fn.stdpath('data') .. '/site',
 })
 
-vim.pack.add({
-    {
-    src = 'https://github.com/sainnhe/sonokai',
-    name = 'sonokai',
-}
+vim.pack.add({ { src = "https://github.com/catppuccin/nvim", name = "catppuccin" } })
+
+require('catppuccin').setup({
+  transparent_background = true,
+  integrations = {
+    treesitter = true,
+    native_lsp = { enabled = true },
+    mason = true,
+    which_key = true,
+  },
 })
 
-vim.cmd('colorscheme sonokai')
-vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+-- Matches Ghostty's dynamic light/dark theme (Catppuccin Latte / Frappe).
+-- Re-run on demand (see bin/toggle-theme) to pick up a live appearance change.
+local function apply_system_theme()
+    local handle = io.popen("defaults read -g AppleInterfaceStyle 2>/dev/null")
+    local result = handle:read("*a")
+    handle:close()
+
+    -- Strip trailing newline character
+    result = string.gsub(result, "\n$", "")
+
+    if result == "Dark" then
+        vim.o.background = "dark"
+        vim.cmd("colorscheme catppuccin-frappe")
+    else
+        vim.o.background = "light"
+        vim.cmd("colorscheme catppuccin-latte")
+    end
+end
+
+apply_system_theme()
+
+-- bin/toggle-theme sends SIGUSR1 to running nvim processes after flipping
+-- the macOS appearance, so open buffers re-theme without a restart.
+local theme_signal = vim.uv.new_signal()
+theme_signal:start("sigusr1", function()
+    vim.schedule(apply_system_theme)
+end)
 
 -- Colorizer shows html and other colour encodings in their colour
 vim.pack.add({

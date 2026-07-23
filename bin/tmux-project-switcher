@@ -40,7 +40,7 @@ if [[ -n "$last_project" ]] && echo "$sessions" | grep -q "^${last_project}$"; t
     sessions=$(echo "$last_project"; echo "$sessions" | grep -v "^${last_project}$")
 fi
 
-selected=$(echo "$sessions" | fzf --reverse --header="Switch project")
+selected=$(echo "$sessions" | fzf --reverse --header="Switch project" $(~/.config/bin/fzf-theme))
 
 if [[ -z $selected ]]; then
     exit 0

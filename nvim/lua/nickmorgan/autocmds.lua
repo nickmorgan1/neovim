@@ -1,4 +1,23 @@
 local nickgroup = vim.api.nvim_create_augroup('NickSettings', { clear = true })
+
+local function set_strong_highlights()
+    local hl = vim.api.nvim_get_hl(0, { name = 'CursorLine', link = false })
+    local bg = hl.bg
+    if bg then
+        local r = math.min(255, math.floor(bg / 0x10000) + 40)
+        local g = math.min(255, math.floor((bg % 0x10000) / 0x100) + 40)
+        local b = math.min(255, (bg % 0x100) + 40)
+        bg = r * 0x10000 + g * 0x100 + b
+    end
+    vim.api.nvim_set_hl(0, 'CursorLine', { bg = bg })
+    vim.api.nvim_set_hl(0, 'CursorLineNr', { bold = true })
+    vim.api.nvim_set_hl(0, 'MiniPickMatchCurrent', { bg = bg, bold = true })
+end
+vim.api.nvim_create_autocmd('ColorScheme', {
+    group = vim.api.nvim_create_augroup('StrongCursorLine', { clear = true }),
+    callback = set_strong_highlights,
+})
+set_strong_highlights()
 local lspGroup = vim.api.nvim_create_augroup("lsp_completion", { clear = true })
 
 vim.api.nvim_create_autocmd('FileType', {

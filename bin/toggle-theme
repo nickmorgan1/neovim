@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Flips macOS light/dark appearance, then syncs tmux + nvim to match
+# (see sync-theme for the part that doesn't flip anything).
+
+osascript -e 'tell application "System Events" to tell appearance preferences to set dark mode to not dark mode'
+
+# Give `defaults read -g AppleInterfaceStyle` a moment to reflect the change.
+sleep 0.3
+
+"$(dirname "$0")/sync-theme"

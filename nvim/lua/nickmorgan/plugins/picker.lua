@@ -9,7 +9,40 @@ local pickers = {
                 name = 'Quickfix List'
             }
         })
-    end
+    end,
+    git_status = function()
+        local selection = require('mini.pick').builtin.cli({
+            command = {
+                'git', 'status', '-s'
+            }
+        }, {
+            source = {
+                name = 'Git Status',
+                preview = function(bufnr, item)
+                    local file = vim.trim(item):match('%s+(.+)')
+                    -- get diff and show
+                    local append_data = function(_, data)
+                        if data then
+                            vim.bo[bufnr].modifiable = true
+                            vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, data)
+                            vim.bo[bufnr].filetype = 'diff'
+                            vim.bo[bufnr].modifiable = false
+                        end
+                    end
+
+                    vim.fn.jobstart({ 'git', 'diff', 'HEAD', file }, {
+                        stdout_buffered = true,
+                        on_stdout = append_data,
+                        on_stderr = append_data,
+                    })
+                end
+            }
+        })
+
+        if selection then
+            vim.cmd.edit(vim.trim(selection):match('%s+(.+)'))
+        end
+    end,
 }
 
 return {
@@ -22,37 +55,23 @@ return {
             picker.registry = pickers
             map('n', '<leader>ff', pickers.files, { desc = 'Find Files' })
             map('n', '<leader>fr', pickers.resume, { desc = 'Resume' })
-            map('n', '<leader>fg', pickers.grep, { desc = 'Grep Files' })
             map('n', '<leader>fb', pickers.buffers, { desc = 'Buffers' })
             map('n', '<leader>fl', pickers.grep_live, { desc = 'Grep Live' })
             map('n', '<leader>fq', pickers.quickfix, { desc = 'Quickfix' })
             map('n', '<leader>fh', pickers.help, { desc = 'Help Tags' })
+            map('n', '<leader>fg', pickers.git_status, { desc = 'Git Status' })
 
             picker.setup({
                 -- Window related options
                 window = {
                     config = function()
-                        local height, width, starts, ends
-                        local win_width = vim.o.columns
-                        local win_height = vim.o.lines
-
-                        if win_height <= 25 then
-                            height = math.min(win_height, 18)
-                            width = win_width
-                            starts = 1
-                            ends = win_height
-                        else
-                            width = math.floor(win_width * 0.5) -- 50%
-                            height = math.floor(win_height * 0.3) -- 30%
-                            starts = math.floor((win_width - width) / 2)
-                            -- center prompt: height * (50% + 30%)
-                            -- center window: height * [50% + (30% / 2)]
-                            ends = math.floor(win_height * 0.65)
-                        end
+                        local width = math.floor(vim.o.columns * 0.75)
+                        local height = math.floor(vim.o.lines * 0.75)
 
                         return {
-                            col = starts,
-                            row = ends,
+                            anchor = 'NW',
+                            col = math.floor((vim.o.columns - width) / 2),
+                            row = math.floor((vim.o.lines - height) / 2),
                             height = height,
                             width = width,
                             style = 'minimal',
